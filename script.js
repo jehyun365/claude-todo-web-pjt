@@ -1,126 +1,134 @@
-const USERS_KEY = "mytodo_users";
-const SESSION_KEY = "mytodo_session";
+const SUPABASE_URL = "https://admabxcqwuqofftjrsnu.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkbWFieGNxd3Vxb2ZmdGpyc251Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODQ2MTQsImV4cCI6MjEwMDI2MDYxNH0.dd-Iv4YpA92zPRvbmGk_waEcEaV6Z3JdBAkpD6OAM-8";
+const TABLE_NAME = "todo_tbl";
+
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const CATEGORIES = ["개인", "공부", "업무", "취미"];
 
 let todos = [];
 let currentFilter = "전체";
 let editingId = null;
-let currentUser = null;
+let currentUser = null; // { id, email }
 
-function todoStorageKey(username) {
-  return `mytodo_items_${username}`;
-}
+function translateAuthError(error) {
+  const message = error?.message || "";
 
-function loadUsers() {
-  try {
-    const raw = localStorage.getItem(USERS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (err) {
-    console.error("Failed to load users from localStorage:", err);
-    return [];
+  if (message.includes("Invalid login credentials")) {
+    return "이메일 또는 비밀번호가 올바르지 않습니다.";
   }
-}
-
-function saveUsers(users) {
-  try {
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  } catch (err) {
-    console.error("Failed to save users to localStorage:", err);
+  if (message.includes("User already registered")) {
+    return "이미 가입된 이메일입니다.";
   }
-}
-
-function loadSession() {
-  return localStorage.getItem(SESSION_KEY);
-}
-
-function saveSession(username) {
-  localStorage.setItem(SESSION_KEY, username);
-}
-
-function clearSession() {
-  localStorage.removeItem(SESSION_KEY);
-}
-
-function signup(username, password) {
-  const users = loadUsers();
-  if (users.some((u) => u.username === username)) {
-    return { ok: false, message: "이미 존재하는 아이디입니다." };
+  if (message.includes("Password should be at least")) {
+    return "비밀번호는 6자 이상이어야 합니다.";
+  }
+  if (message.includes("Unable to validate email address") || message.includes("invalid format")) {
+    return "이메일 형식이 올바르지 않습니다.";
+  }
+  if (message.includes("Email not confirmed")) {
+    return "이메일 인증이 필요합니다. 받은 편지함에서 인증 링크를 확인해주세요.";
   }
 
-  users.push({ username, password });
-  saveUsers(users);
+  return message || "요청 처리 중 오류가 발생했습니다.";
+}
+
+async function handleSignup(email, password) {
+  const { data, error } = await supabaseClient.auth.signUp({ email, password });
+
+  if (error) {
+    return { ok: false, message: translateAuthError(error) };
+  }
+
+  if (data.session) {
+    currentUser = { id: data.user.id, email: data.user.email };
+    return { ok: true, autoLoggedIn: true };
+  }
+
+  return { ok: true, autoLoggedIn: false };
+}
+
+async function handleLogin(email, password) {
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    return { ok: false, message: translateAuthError(error) };
+  }
+
+  currentUser = { id: data.user.id, email: data.user.email };
   return { ok: true };
 }
 
-function login(username, password) {
-  const users = loadUsers();
-  const user = users.find((u) => u.username === username && u.password === password);
-  if (!user) {
-    return { ok: false, message: "아이디 또는 비밀번호가 올바르지 않습니다." };
-  }
-
-  saveSession(username);
-  return { ok: true };
-}
-
-function logout() {
-  clearSession();
+async function handleLogout() {
+  await supabaseClient.auth.signOut();
   currentUser = null;
   todos = [];
   editingId = null;
   showAuthScreen();
 }
 
-function loadTodos() {
-  try {
-    const raw = localStorage.getItem(todoStorageKey(currentUser));
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (err) {
-    console.error("Failed to load todos from localStorage:", err);
+async function loadTodos() {
+  const { data, error } = await supabaseClient
+    .from(TABLE_NAME)
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Failed to load todos from Supabase:", error);
     return [];
   }
+
+  return data;
 }
 
-function saveTodos() {
-  try {
-    localStorage.setItem(todoStorageKey(currentUser), JSON.stringify(todos));
-  } catch (err) {
-    console.error("Failed to save todos to localStorage:", err);
-  }
-}
-
-function addTodo(text, category) {
+async function addTodo(text, category) {
   const trimmed = text.trim();
-  if (!trimmed) return;
+  if (!trimmed || !currentUser) return;
 
-  todos.push({
-    id: String(Date.now()),
-    text: trimmed,
-    category,
-    completed: false,
-    createdAt: Date.now(),
-  });
+  const { data, error } = await supabaseClient
+    .from(TABLE_NAME)
+    .insert({ text: trimmed, category, user_id: currentUser.id })
+    .select()
+    .single();
 
-  saveTodos();
+  if (error) {
+    console.error("Failed to add todo:", error);
+    return;
+  }
+
+  todos.push(data);
   renderTodos();
 }
 
-function deleteTodo(id) {
+async function deleteTodo(id) {
+  const { error } = await supabaseClient.from(TABLE_NAME).delete().eq("id", id);
+
+  if (error) {
+    console.error("Failed to delete todo:", error);
+    return;
+  }
+
   todos = todos.filter((todo) => todo.id !== id);
-  saveTodos();
   renderTodos();
 }
 
-function toggleTodo(id) {
+async function toggleTodo(id) {
   const todo = todos.find((t) => t.id === id);
   if (!todo) return;
-  todo.completed = !todo.completed;
-  saveTodos();
+
+  const nextCompleted = !todo.completed;
+  const { error } = await supabaseClient
+    .from(TABLE_NAME)
+    .update({ completed: nextCompleted })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Failed to update todo:", error);
+    return;
+  }
+
+  todo.completed = nextCompleted;
   renderTodos();
 }
 
@@ -134,18 +142,27 @@ function cancelEdit() {
   renderTodos();
 }
 
-function saveEdit(id, text, category) {
+async function saveEdit(id, text, category) {
   const trimmed = text.trim();
   if (!trimmed) return;
 
   const todo = todos.find((t) => t.id === id);
   if (!todo) return;
 
+  const { error } = await supabaseClient
+    .from(TABLE_NAME)
+    .update({ text: trimmed, category })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Failed to save todo:", error);
+    return;
+  }
+
   todo.text = trimmed;
   todo.category = category;
 
   editingId = null;
-  saveTodos();
   renderTodos();
 }
 
@@ -319,15 +336,15 @@ function showAuthScreen() {
   setAuthTab("login");
 }
 
-function showTodoScreen() {
+async function showTodoScreen() {
   document.getElementById("auth-section").hidden = true;
   document.getElementById("todo-app").hidden = false;
 
   const userBar = document.getElementById("user-bar");
   userBar.hidden = false;
-  document.getElementById("current-user-label").textContent = `${currentUser}님`;
+  document.getElementById("current-user-label").textContent = `${currentUser.email}님`;
 
-  todos = loadTodos();
+  todos = await loadTodos();
   currentFilter = "전체";
   editingId = null;
   document.querySelectorAll(".filter-tab").forEach((tab) => {
@@ -336,11 +353,14 @@ function showTodoScreen() {
   renderTodos();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const session = loadSession();
+document.addEventListener("DOMContentLoaded", async () => {
+  const {
+    data: { session },
+  } = await supabaseClient.auth.getSession();
+
   if (session) {
-    currentUser = session;
-    showTodoScreen();
+    currentUser = { id: session.user.id, email: session.user.email };
+    await showTodoScreen();
   } else {
     showAuthScreen();
   }
@@ -349,27 +369,26 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => setAuthTab(btn.dataset.authTab));
   });
 
-  document.getElementById("login-form").addEventListener("submit", (e) => {
+  document.getElementById("login-form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const username = document.getElementById("login-username").value.trim();
+    const email = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value;
-
-    const result = login(username, password);
     const errorEl = document.getElementById("login-error");
+    errorEl.hidden = true;
 
+    const result = await handleLogin(email, password);
     if (!result.ok) {
       errorEl.textContent = result.message;
       errorEl.hidden = false;
       return;
     }
 
-    currentUser = username;
-    showTodoScreen();
+    await showTodoScreen();
   });
 
-  document.getElementById("signup-form").addEventListener("submit", (e) => {
+  document.getElementById("signup-form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const username = document.getElementById("signup-username").value.trim();
+    const email = document.getElementById("signup-email").value.trim();
     const password = document.getElementById("signup-password").value;
     const passwordConfirm = document.getElementById("signup-password-confirm").value;
 
@@ -378,8 +397,8 @@ document.addEventListener("DOMContentLoaded", () => {
     errorEl.hidden = true;
     successEl.hidden = true;
 
-    if (!username || !password) {
-      errorEl.textContent = "아이디와 비밀번호를 입력해주세요.";
+    if (!email || !password) {
+      errorEl.textContent = "이메일과 비밀번호를 입력해주세요.";
       errorEl.hidden = false;
       return;
     }
@@ -390,7 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const result = signup(username, password);
+    const result = await handleSignup(email, password);
     if (!result.ok) {
       errorEl.textContent = result.message;
       errorEl.hidden = false;
@@ -398,16 +417,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     document.getElementById("signup-form").reset();
-    successEl.textContent = "회원가입이 완료되었습니다. 로그인해주세요.";
+
+    if (result.autoLoggedIn) {
+      await showTodoScreen();
+      return;
+    }
+
+    successEl.textContent = "회원가입이 완료되었습니다. 이메일함에서 인증 링크를 확인한 뒤 로그인해주세요.";
     successEl.hidden = false;
     setTimeout(() => {
       setAuthTab("login");
-      document.getElementById("login-username").value = username;
+      document.getElementById("login-email").value = email;
       document.getElementById("login-password").focus();
-    }, 800);
+    }, 1200);
   });
 
-  document.getElementById("logout-btn").addEventListener("click", () => logout());
+  document.getElementById("logout-btn").addEventListener("click", () => handleLogout());
 
   const input = document.getElementById("todo-input");
   const categorySelect = document.getElementById("category-select");

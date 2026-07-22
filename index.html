@@ -24,11 +24,11 @@
 
       <form id="login-form" class="auth-form">
         <input
-          type="text"
-          id="login-username"
+          type="email"
+          id="login-email"
           class="auth-input"
-          placeholder="아이디"
-          autocomplete="username"
+          placeholder="이메일"
+          autocomplete="email"
           required
         />
         <input
@@ -45,11 +45,11 @@
 
       <form id="signup-form" class="auth-form" hidden>
         <input
-          type="text"
-          id="signup-username"
+          type="email"
+          id="signup-email"
           class="auth-input"
-          placeholder="아이디"
-          autocomplete="username"
+          placeholder="이메일"
+          autocomplete="email"
           required
         />
         <input
@@ -118,6 +118,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
