@@ -4,17 +4,115 @@
   padding: 0;
 }
 
+:root {
+  --color-bg: #f5f6f8;
+  --color-bg-card: #ffffff;
+  --color-bg-input: #ffffff;
+  --color-bg-subtle: #f0f0f0;
+  --color-bg-subtle-hover: #e6e6e6;
+  --color-bg-pill: #eeeeee;
+  --color-bg-pill-hover: #dddddd;
+  --color-text-primary: #222222;
+  --color-text-heading: #333333;
+  --color-text-secondary: #666666;
+  --color-text-muted: #999999;
+  --color-text-faint: #aaaaaa;
+  --color-border: #cccccc;
+  --color-border-light: #dddddd;
+  --color-accent: #4a90e2;
+  --color-accent-hover: #3a7bc8;
+  --color-accent-active: #2f66a8;
+  --color-filter-active-bg: #333333;
+  --color-progress-track: #e0e0e0;
+  --color-shadow: rgba(0, 0, 0, 0.05);
+  --color-shadow-hover: rgba(0, 0, 0, 0.1);
+  --color-error: #e74c3c;
+  --color-success: #2ecc71;
+  --category-personal-bg: #e8f1fc;
+  --category-personal-text: #4a90e2;
+  --category-study-bg: #e8f9ef;
+  --category-study-text: #2ecc71;
+  --category-work-bg: #fdf1e0;
+  --category-work-text: #f5a623;
+  --category-hobby-bg: #f3e9f7;
+  --category-hobby-text: #9b59b6;
+}
+
+[data-theme="dark"] {
+  --color-bg: #14161a;
+  --color-bg-card: #1e2128;
+  --color-bg-input: #24272f;
+  --color-bg-subtle: #2a2d35;
+  --color-bg-subtle-hover: #33363f;
+  --color-bg-pill: #2a2d35;
+  --color-bg-pill-hover: #383b44;
+  --color-text-primary: #e4e6eb;
+  --color-text-heading: #f2f3f5;
+  --color-text-secondary: #a8adb5;
+  --color-text-muted: #7d828a;
+  --color-text-faint: #63676f;
+  --color-border: #3a3d44;
+  --color-border-light: #33363c;
+  --color-accent: #5b9bea;
+  --color-accent-hover: #71a9ef;
+  --color-accent-active: #4a8ad9;
+  --color-filter-active-bg: #5b9bea;
+  --color-progress-track: #2f323a;
+  --color-shadow: rgba(0, 0, 0, 0.35);
+  --color-shadow-hover: rgba(0, 0, 0, 0.5);
+  --color-error: #ff7a7a;
+  --color-success: #5fe0a0;
+  --category-personal-bg: rgba(91, 155, 234, 0.18);
+  --category-personal-text: #8cc0f5;
+  --category-study-bg: rgba(46, 204, 113, 0.16);
+  --category-study-text: #7fe3ac;
+  --category-work-bg: rgba(245, 166, 35, 0.16);
+  --category-work-text: #f8c374;
+  --category-hobby-bg: rgba(155, 89, 182, 0.18);
+  --category-hobby-text: #cd9adf;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
-  background-color: #f5f6f8;
-  color: #222;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
   line-height: 1.5;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .app {
   max-width: 600px;
   margin: 0 auto;
   padding: 24px 16px 60px;
+}
+
+/* Theme toggle */
+.theme-toggle-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-light);
+  background-color: var(--color-bg-card);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px var(--color-shadow);
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.theme-toggle-btn:hover {
+  background-color: var(--color-bg-subtle);
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.92);
 }
 
 /* Header */
@@ -27,7 +125,7 @@ body {
 .app-title {
   font-size: 28px;
   font-weight: 700;
-  color: #333;
+  color: var(--color-text-heading);
 }
 
 .user-bar {
@@ -37,7 +135,7 @@ body {
   gap: 10px;
   margin-top: 10px;
   font-size: 14px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .user-bar[hidden] {
@@ -48,8 +146,8 @@ body {
   padding: 4px 12px;
   font-size: 13px;
   font-weight: 600;
-  color: #555;
-  background-color: #eee;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-pill);
   border: none;
   border-radius: 999px;
   cursor: pointer;
@@ -57,7 +155,7 @@ body {
 }
 
 .logout-btn:hover {
-  background-color: #ddd;
+  background-color: var(--color-bg-pill-hover);
 }
 
 .logout-btn:active {
@@ -68,10 +166,10 @@ body {
 .auth-section {
   max-width: 360px;
   margin: 0 auto;
-  background-color: #fff;
+  background-color: var(--color-bg-card);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px var(--color-shadow);
 }
 
 .auth-tabs {
@@ -85,8 +183,8 @@ body {
   padding: 10px;
   font-size: 14px;
   font-weight: 600;
-  color: #666;
-  background-color: #f0f0f0;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-subtle);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -94,11 +192,11 @@ body {
 }
 
 .auth-tab:hover {
-  background-color: #e6e6e6;
+  background-color: var(--color-bg-subtle-hover);
 }
 
 .auth-tab.active {
-  background-color: #4a90e2;
+  background-color: var(--color-accent);
   color: #fff;
 }
 
@@ -115,20 +213,22 @@ body {
 .auth-form-title {
   font-size: 18px;
   font-weight: 700;
-  color: #333;
+  color: var(--color-text-heading);
   margin-bottom: 4px;
 }
 
 .auth-input {
   padding: 10px 12px;
   font-size: 15px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   outline: none;
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
 }
 
 .auth-input:focus {
-  border-color: #4a90e2;
+  border-color: var(--color-accent);
 }
 
 .auth-submit-btn {
@@ -136,7 +236,7 @@ body {
   font-size: 15px;
   font-weight: 600;
   color: #fff;
-  background-color: #4a90e2;
+  background-color: var(--color-accent);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -144,11 +244,11 @@ body {
 }
 
 .auth-submit-btn:hover {
-  background-color: #3a7bc8;
+  background-color: var(--color-accent-hover);
 }
 
 .auth-submit-btn:active {
-  background-color: #2f66a8;
+  background-color: var(--color-accent-active);
   transform: scale(0.98);
 }
 
@@ -158,11 +258,11 @@ body {
 }
 
 .auth-error {
-  color: #e74c3c;
+  color: var(--color-error);
 }
 
 .auth-success {
-  color: #2ecc71;
+  color: var(--color-success);
 }
 
 /* Progress */
@@ -174,14 +274,14 @@ body {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
-  color: #666;
+  color: var(--color-text-secondary);
   margin-bottom: 6px;
 }
 
 .progress-bar {
   width: 100%;
   height: 10px;
-  background-color: #e0e0e0;
+  background-color: var(--color-progress-track);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -189,14 +289,14 @@ body {
 .progress-bar-fill {
   height: 100%;
   width: 0%;
-  background-color: #4a90e2;
+  background-color: var(--color-accent);
   border-radius: 999px;
   transition: width 0.3s ease;
 }
 
 .progress-empty {
   font-size: 14px;
-  color: #999;
+  color: var(--color-text-muted);
   text-align: center;
   padding: 10px 0;
 }
@@ -214,26 +314,29 @@ body {
   min-width: 0;
   padding: 10px 12px;
   font-size: 15px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   outline: none;
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
 }
 
 .todo-input:focus {
-  border-color: #4a90e2;
+  border-color: var(--color-accent);
 }
 
 .category-select {
   padding: 10px 12px;
   font-size: 15px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background-color: #fff;
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
   cursor: pointer;
 }
 
 .category-select:focus {
-  border-color: #4a90e2;
+  border-color: var(--color-accent);
 }
 
 .add-btn {
@@ -241,7 +344,7 @@ body {
   font-size: 15px;
   font-weight: 600;
   color: #fff;
-  background-color: #4a90e2;
+  background-color: var(--color-accent);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -249,11 +352,11 @@ body {
 }
 
 .add-btn:hover {
-  background-color: #3a7bc8;
+  background-color: var(--color-accent-hover);
 }
 
 .add-btn:active {
-  background-color: #2f66a8;
+  background-color: var(--color-accent-active);
   transform: scale(0.97);
 }
 
@@ -270,17 +373,17 @@ body {
   flex: 0 0 auto;
   padding: 8px 14px;
   font-size: 14px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-light);
   border-radius: 999px;
-  background-color: #fff;
-  color: #555;
+  background-color: var(--color-bg-card);
+  color: var(--color-text-secondary);
   cursor: pointer;
   white-space: nowrap;
   transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 
 .filter-tab:hover {
-  background-color: #f0f0f0;
+  background-color: var(--color-bg-subtle);
 }
 
 .filter-tab:active {
@@ -288,13 +391,13 @@ body {
 }
 
 .filter-tab.active {
-  background-color: #333;
+  background-color: var(--color-filter-active-bg);
   color: #fff;
-  border-color: #333;
+  border-color: var(--color-filter-active-bg);
 }
 
 .filter-tab.active:hover {
-  background-color: #333;
+  background-color: var(--color-filter-active-bg);
 }
 
 /* Todo list */
@@ -314,15 +417,15 @@ body {
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  background-color: #fff;
+  background-color: var(--color-bg-card);
   border-radius: 8px;
-  border-left: 4px solid #ccc;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.15s ease;
+  border-left: 4px solid var(--color-border);
+  box-shadow: 0 1px 2px var(--color-shadow);
+  transition: box-shadow 0.15s ease, background-color 0.2s ease;
 }
 
 .todo-item:hover {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px var(--color-shadow-hover);
 }
 
 .todo-checkbox {
@@ -330,7 +433,7 @@ body {
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #4a90e2;
+  accent-color: var(--color-accent);
   transition: transform 0.1s ease;
 }
 
@@ -348,23 +451,23 @@ body {
 }
 
 .category-tag-개인 {
-  background-color: #e8f1fc;
-  color: #4a90e2;
+  background-color: var(--category-personal-bg);
+  color: var(--category-personal-text);
 }
 
 .category-tag-공부 {
-  background-color: #e8f9ef;
-  color: #2ecc71;
+  background-color: var(--category-study-bg);
+  color: var(--category-study-text);
 }
 
 .category-tag-업무 {
-  background-color: #fdf1e0;
-  color: #f5a623;
+  background-color: var(--category-work-bg);
+  color: var(--category-work-text);
 }
 
 .category-tag-취미 {
-  background-color: #f3e9f7;
-  color: #9b59b6;
+  background-color: var(--category-hobby-bg);
+  color: var(--category-hobby-text);
 }
 
 .todo-text {
@@ -375,7 +478,7 @@ body {
 
 .todo-text.completed {
   text-decoration: line-through;
-  color: #aaa;
+  color: var(--color-text-faint);
 }
 
 .edit-btn,
@@ -393,7 +496,7 @@ body {
 
 .edit-btn:hover,
 .delete-btn:hover {
-  background-color: #f0f0f0;
+  background-color: var(--color-bg-subtle);
 }
 
 .edit-btn:active,
@@ -411,23 +514,26 @@ body {
   min-width: 0;
   padding: 8px 10px;
   font-size: 14px;
-  border: 1px solid #4a90e2;
+  border: 1px solid var(--color-accent);
   border-radius: 6px;
   outline: none;
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
 }
 
 .edit-category-select {
   flex: 0 0 auto;
   padding: 8px 10px;
   font-size: 14px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  background-color: #fff;
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
   cursor: pointer;
 }
 
 .edit-category-select:focus {
-  border-color: #4a90e2;
+  border-color: var(--color-accent);
 }
 
 .save-btn,
@@ -448,21 +554,21 @@ body {
 }
 
 .save-btn {
-  background-color: #4a90e2;
+  background-color: var(--color-accent);
   color: #fff;
 }
 
 .save-btn:hover {
-  background-color: #3a7bc8;
+  background-color: var(--color-accent-hover);
 }
 
 .cancel-btn {
-  background-color: #eee;
-  color: #555;
+  background-color: var(--color-bg-pill);
+  color: var(--color-text-secondary);
 }
 
 .cancel-btn:hover {
-  background-color: #ddd;
+  background-color: var(--color-bg-pill-hover);
 }
 
 /* Category colors */
@@ -490,6 +596,13 @@ body {
 
   .app-title {
     font-size: 24px;
+  }
+
+  .theme-toggle-btn {
+    top: 12px;
+    right: 12px;
+    width: 38px;
+    height: 38px;
   }
 
   .todo-input-section {

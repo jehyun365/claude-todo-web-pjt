@@ -4,9 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MyTodo</title>
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem("mytodo_theme");
+        var theme =
+          stored === "light" || stored === "dark"
+            ? stored
+            : window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (err) {
+        // localStorage unavailable; fall back to the default light theme
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <button id="theme-toggle-btn" class="theme-toggle-btn" type="button" aria-label="다크모드 전환">🌙</button>
+
   <div class="app">
     <header class="app-header">
       <h1 class="app-title">MyTodo</h1>

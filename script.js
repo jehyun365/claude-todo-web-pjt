@@ -6,11 +6,30 @@ const TABLE_NAME = "todo_tbl";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const CATEGORIES = ["개인", "공부", "업무", "취미"];
+const THEME_KEY = "mytodo_theme";
 
 let todos = [];
 let currentFilter = "전체";
 let editingId = null;
 let currentUser = null; // { id, email }
+
+function getPreferredTheme() {
+  const stored = localStorage.getItem(THEME_KEY);
+  if (stored === "light" || stored === "dark") return stored;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const toggleBtn = document.getElementById("theme-toggle-btn");
+  if (toggleBtn) toggleBtn.textContent = theme === "dark" ? "☀️" : "🌙";
+}
+
+function toggleTheme() {
+  const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+}
 
 function translateAuthError(error) {
   const message = error?.message || "";
@@ -354,6 +373,9 @@ async function showTodoScreen() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  applyTheme(getPreferredTheme());
+  document.getElementById("theme-toggle-btn").addEventListener("click", toggleTheme);
+
   const {
     data: { session },
   } = await supabaseClient.auth.getSession();
