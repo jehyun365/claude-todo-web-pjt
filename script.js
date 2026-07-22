@@ -1,4 +1,9 @@
-const STORAGE_KEY = "mytodo_items";
+const SUPABASE_URL = "https://admabxcqwuqofftjrsnu.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkbWFieGNxd3Vxb2ZmdGpyc251Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODQ2MTQsImV4cCI6MjEwMDI2MDYxNH0.dd-Iv4YpA92zPRvbmGk_waEcEaV6Z3JdBAkpD6OAM-8";
+const TABLE_NAME = "todo_tbl";
+
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const CATEGORIES = ["개인", "공부", "업무", "취미"];
 
@@ -6,53 +11,67 @@ let todos = [];
 let currentFilter = "전체";
 let editingId = null;
 
-function loadTodos() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (err) {
-    console.error("Failed to load todos from localStorage:", err);
+async function loadTodos() {
+  const { data, error } = await supabaseClient
+    .from(TABLE_NAME)
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Failed to load todos from Supabase:", error);
     return [];
   }
+
+  return data;
 }
 
-function saveTodos() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-  } catch (err) {
-    console.error("Failed to save todos to localStorage:", err);
-  }
-}
-
-function addTodo(text, category) {
+async function addTodo(text, category) {
   const trimmed = text.trim();
   if (!trimmed) return;
 
-  todos.push({
-    id: String(Date.now()),
-    text: trimmed,
-    category,
-    completed: false,
-    createdAt: Date.now(),
-  });
+  const { data, error } = await supabaseClient
+    .from(TABLE_NAME)
+    .insert({ text: trimmed, category })
+    .select()
+    .single();
 
-  saveTodos();
+  if (error) {
+    console.error("Failed to add todo:", error);
+    return;
+  }
+
+  todos.push(data);
   renderTodos();
 }
 
-function deleteTodo(id) {
+async function deleteTodo(id) {
+  const { error } = await supabaseClient.from(TABLE_NAME).delete().eq("id", id);
+
+  if (error) {
+    console.error("Failed to delete todo:", error);
+    return;
+  }
+
   todos = todos.filter((todo) => todo.id !== id);
-  saveTodos();
   renderTodos();
 }
 
-function toggleTodo(id) {
+async function toggleTodo(id) {
   const todo = todos.find((t) => t.id === id);
   if (!todo) return;
-  todo.completed = !todo.completed;
-  saveTodos();
+
+  const nextCompleted = !todo.completed;
+  const { error } = await supabaseClient
+    .from(TABLE_NAME)
+    .update({ completed: nextCompleted })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Failed to update todo:", error);
+    return;
+  }
+
+  todo.completed = nextCompleted;
   renderTodos();
 }
 
@@ -66,18 +85,27 @@ function cancelEdit() {
   renderTodos();
 }
 
-function saveEdit(id, text, category) {
+async function saveEdit(id, text, category) {
   const trimmed = text.trim();
   if (!trimmed) return;
 
   const todo = todos.find((t) => t.id === id);
   if (!todo) return;
 
+  const { error } = await supabaseClient
+    .from(TABLE_NAME)
+    .update({ text: trimmed, category })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Failed to save todo:", error);
+    return;
+  }
+
   todo.text = trimmed;
   todo.category = category;
 
   editingId = null;
-  saveTodos();
   renderTodos();
 }
 
@@ -224,8 +252,8 @@ function setFilter(filter) {
   renderTodos();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  todos = loadTodos();
+document.addEventListener("DOMContentLoaded", async () => {
+  todos = await loadTodos();
   renderTodos();
 
   const input = document.getElementById("todo-input");
