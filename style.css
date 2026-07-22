@@ -1,0 +1,401 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  background-color: #f5f6f8;
+  color: #222;
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+
+/* Header */
+.app-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.app-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* Progress */
+.progress-section {
+  margin-bottom: 24px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background-color: #4a90e2;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.progress-empty {
+  font-size: 14px;
+  color: #999;
+  text-align: center;
+  padding: 10px 0;
+}
+
+/* Input */
+.todo-input-section {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.todo-input {
+  flex: 1 1 200px;
+  min-width: 0;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+
+.todo-input:focus {
+  border-color: #4a90e2;
+}
+
+.category-select {
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.category-select:focus {
+  border-color: #4a90e2;
+}
+
+.add-btn {
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #4a90e2;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.add-btn:hover {
+  background-color: #3a7bc8;
+}
+
+.add-btn:active {
+  background-color: #2f66a8;
+  transform: scale(0.97);
+}
+
+/* Filter tabs */
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin-bottom: 20px;
+  padding-bottom: 4px;
+}
+
+.filter-tab {
+  flex: 0 0 auto;
+  padding: 8px 14px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background-color: #fff;
+  color: #555;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.filter-tab:hover {
+  background-color: #f0f0f0;
+}
+
+.filter-tab:active {
+  transform: scale(0.96);
+}
+
+.filter-tab.active {
+  background-color: #333;
+  color: #fff;
+  border-color: #333;
+}
+
+.filter-tab.active:hover {
+  background-color: #333;
+}
+
+/* Todo list */
+.todo-list-section {
+  width: 100%;
+}
+
+.todo-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background-color: #fff;
+  border-radius: 8px;
+  border-left: 4px solid #ccc;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.15s ease;
+}
+
+.todo-item:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.todo-checkbox {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #4a90e2;
+  transition: transform 0.1s ease;
+}
+
+.todo-checkbox:active {
+  transform: scale(0.9);
+}
+
+.category-tag {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.category-tag-개인 {
+  background-color: #e8f1fc;
+  color: #4a90e2;
+}
+
+.category-tag-공부 {
+  background-color: #e8f9ef;
+  color: #2ecc71;
+}
+
+.category-tag-업무 {
+  background-color: #fdf1e0;
+  color: #f5a623;
+}
+
+.category-tag-취미 {
+  background-color: #f3e9f7;
+  color: #9b59b6;
+}
+
+.todo-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.todo-text.completed {
+  text-decoration: line-through;
+  color: #aaa;
+}
+
+.edit-btn,
+.delete-btn {
+  flex: 0 0 auto;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  border-radius: 6px;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.edit-btn:hover,
+.delete-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.edit-btn:active,
+.delete-btn:active {
+  transform: scale(0.9);
+}
+
+/* Inline edit mode */
+.todo-item.editing {
+  flex-wrap: wrap;
+}
+
+.edit-input {
+  flex: 1 1 150px;
+  min-width: 0;
+  padding: 8px 10px;
+  font-size: 14px;
+  border: 1px solid #4a90e2;
+  border-radius: 6px;
+  outline: none;
+}
+
+.edit-category-select {
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.edit-category-select:focus {
+  border-color: #4a90e2;
+}
+
+.save-btn,
+.cancel-btn {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.save-btn:active,
+.cancel-btn:active {
+  transform: scale(0.96);
+}
+
+.save-btn {
+  background-color: #4a90e2;
+  color: #fff;
+}
+
+.save-btn:hover {
+  background-color: #3a7bc8;
+}
+
+.cancel-btn {
+  background-color: #eee;
+  color: #555;
+}
+
+.cancel-btn:hover {
+  background-color: #ddd;
+}
+
+/* Category colors */
+.category-개인 {
+  border-left-color: #4a90e2; /* 파랑 */
+}
+
+.category-공부 {
+  border-left-color: #2ecc71; /* 초록 */
+}
+
+.category-업무 {
+  border-left-color: #f5a623; /* 주황 */
+}
+
+.category-취미 {
+  border-left-color: #9b59b6; /* 보라 */
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .app {
+    padding: 20px 12px 48px;
+  }
+
+  .app-title {
+    font-size: 24px;
+  }
+
+  .todo-input-section {
+    flex-direction: column;
+  }
+
+  .category-select,
+  .add-btn {
+    width: 100%;
+  }
+
+  .todo-item {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+  }
+
+  .todo-text {
+    flex-basis: 100%;
+  }
+
+  .edit-input {
+    flex-basis: 100%;
+  }
+
+  .edit-category-select {
+    flex: 1 1 auto;
+  }
+
+  .save-btn,
+  .cancel-btn {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 360px) {
+  .filter-tab {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .category-tag {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+}

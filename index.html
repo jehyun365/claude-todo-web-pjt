@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyTodo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1 class="app-title">MyTodo</h1>
+    </header>
+
+    <section class="progress-section">
+      <div class="progress-display" id="progress-display">
+        <div class="progress-info">
+          <span id="progress-label">0 / 0 완료</span>
+          <span id="progress-percent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" id="progress-bar-fill"></div>
+        </div>
+      </div>
+      <p class="progress-empty" id="progress-empty" hidden>할 일을 추가해보세요</p>
+    </section>
+
+    <section class="todo-input-section">
+      <input
+        type="text"
+        id="todo-input"
+        class="todo-input"
+        placeholder="할 일을 입력하세요"
+      />
+      <select id="category-select" class="category-select">
+        <option value="개인">개인</option>
+        <option value="공부">공부</option>
+        <option value="업무">업무</option>
+        <option value="취미">취미</option>
+      </select>
+      <button id="add-todo-btn" class="add-btn" type="button">추가</button>
+    </section>
+
+    <nav class="filter-tabs" id="filter-tabs">
+      <button class="filter-tab active" data-filter="전체">전체</button>
+      <button class="filter-tab" data-filter="개인">개인</button>
+      <button class="filter-tab" data-filter="공부">공부</button>
+      <button class="filter-tab" data-filter="업무">업무</button>
+      <button class="filter-tab" data-filter="취미">취미</button>
+    </nav>
+
+    <main class="todo-list-section">
+      <ul id="todo-list" class="todo-list"></ul>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
