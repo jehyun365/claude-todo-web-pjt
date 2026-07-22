@@ -10,51 +10,114 @@
   <div class="app">
     <header class="app-header">
       <h1 class="app-title">MyTodo</h1>
+      <div class="user-bar" id="user-bar" hidden>
+        <span class="current-user-label" id="current-user-label"></span>
+        <button id="logout-btn" class="logout-btn" type="button">로그아웃</button>
+      </div>
     </header>
 
-    <section class="progress-section">
-      <div class="progress-display" id="progress-display">
-        <div class="progress-info">
-          <span id="progress-label">0 / 0 완료</span>
-          <span id="progress-percent">0%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-bar-fill" id="progress-bar-fill"></div>
-        </div>
-      </div>
-      <p class="progress-empty" id="progress-empty" hidden>할 일을 추가해보세요</p>
+    <section class="auth-section" id="auth-section" hidden>
+      <nav class="auth-tabs" id="auth-tabs">
+        <button class="auth-tab active" type="button" data-auth-tab="login">로그인</button>
+        <button class="auth-tab" type="button" data-auth-tab="signup">회원가입</button>
+      </nav>
+
+      <form id="login-form" class="auth-form">
+        <input
+          type="text"
+          id="login-username"
+          class="auth-input"
+          placeholder="아이디"
+          autocomplete="username"
+          required
+        />
+        <input
+          type="password"
+          id="login-password"
+          class="auth-input"
+          placeholder="비밀번호"
+          autocomplete="current-password"
+          required
+        />
+        <p class="auth-message auth-error" id="login-error" hidden></p>
+        <button type="submit" class="auth-submit-btn">로그인</button>
+      </form>
+
+      <form id="signup-form" class="auth-form" hidden>
+        <input
+          type="text"
+          id="signup-username"
+          class="auth-input"
+          placeholder="아이디"
+          autocomplete="username"
+          required
+        />
+        <input
+          type="password"
+          id="signup-password"
+          class="auth-input"
+          placeholder="비밀번호"
+          autocomplete="new-password"
+          required
+        />
+        <input
+          type="password"
+          id="signup-password-confirm"
+          class="auth-input"
+          placeholder="비밀번호 확인"
+          autocomplete="new-password"
+          required
+        />
+        <p class="auth-message auth-error" id="signup-error" hidden></p>
+        <p class="auth-message auth-success" id="signup-success" hidden></p>
+        <button type="submit" class="auth-submit-btn">회원가입</button>
+      </form>
     </section>
 
-    <section class="todo-input-section">
-      <input
-        type="text"
-        id="todo-input"
-        class="todo-input"
-        placeholder="할 일을 입력하세요"
-      />
-      <select id="category-select" class="category-select">
-        <option value="개인">개인</option>
-        <option value="공부">공부</option>
-        <option value="업무">업무</option>
-        <option value="취미">취미</option>
-      </select>
-      <button id="add-todo-btn" class="add-btn" type="button">추가</button>
-    </section>
+    <div id="todo-app" hidden>
+      <section class="progress-section">
+        <div class="progress-display" id="progress-display">
+          <div class="progress-info">
+            <span id="progress-label">0 / 0 완료</span>
+            <span id="progress-percent">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+          </div>
+        </div>
+        <p class="progress-empty" id="progress-empty" hidden>할 일을 추가해보세요</p>
+      </section>
 
-    <nav class="filter-tabs" id="filter-tabs">
-      <button class="filter-tab active" data-filter="전체">전체</button>
-      <button class="filter-tab" data-filter="개인">개인</button>
-      <button class="filter-tab" data-filter="공부">공부</button>
-      <button class="filter-tab" data-filter="업무">업무</button>
-      <button class="filter-tab" data-filter="취미">취미</button>
-    </nav>
+      <section class="todo-input-section">
+        <input
+          type="text"
+          id="todo-input"
+          class="todo-input"
+          placeholder="할 일을 입력하세요"
+        />
+        <select id="category-select" class="category-select">
+          <option value="개인">개인</option>
+          <option value="공부">공부</option>
+          <option value="업무">업무</option>
+          <option value="취미">취미</option>
+        </select>
+        <button id="add-todo-btn" class="add-btn" type="button">추가</button>
+      </section>
 
-    <main class="todo-list-section">
-      <ul id="todo-list" class="todo-list"></ul>
-    </main>
+      <nav class="filter-tabs" id="filter-tabs">
+        <button class="filter-tab active" data-filter="전체">전체</button>
+        <button class="filter-tab" data-filter="개인">개인</button>
+        <button class="filter-tab" data-filter="공부">공부</button>
+        <button class="filter-tab" data-filter="업무">업무</button>
+        <button class="filter-tab" data-filter="취미">취미</button>
+      </nav>
+
+      <main class="todo-list-section">
+        <ul id="todo-list" class="todo-list"></ul>
+      </main>
+    </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

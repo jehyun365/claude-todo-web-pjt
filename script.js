@@ -1,77 +1,126 @@
-const SUPABASE_URL = "https://admabxcqwuqofftjrsnu.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkbWFieGNxd3Vxb2ZmdGpyc251Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODQ2MTQsImV4cCI6MjEwMDI2MDYxNH0.dd-Iv4YpA92zPRvbmGk_waEcEaV6Z3JdBAkpD6OAM-8";
-const TABLE_NAME = "todo_tbl";
-
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const USERS_KEY = "mytodo_users";
+const SESSION_KEY = "mytodo_session";
 
 const CATEGORIES = ["개인", "공부", "업무", "취미"];
 
 let todos = [];
 let currentFilter = "전체";
 let editingId = null;
+let currentUser = null;
 
-async function loadTodos() {
-  const { data, error } = await supabaseClient
-    .from(TABLE_NAME)
-    .select("*")
-    .order("created_at", { ascending: true });
-
-  if (error) {
-    console.error("Failed to load todos from Supabase:", error);
-    return [];
-  }
-
-  return data;
+function todoStorageKey(username) {
+  return `mytodo_items_${username}`;
 }
 
-async function addTodo(text, category) {
+function loadUsers() {
+  try {
+    const raw = localStorage.getItem(USERS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    console.error("Failed to load users from localStorage:", err);
+    return [];
+  }
+}
+
+function saveUsers(users) {
+  try {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  } catch (err) {
+    console.error("Failed to save users to localStorage:", err);
+  }
+}
+
+function loadSession() {
+  return localStorage.getItem(SESSION_KEY);
+}
+
+function saveSession(username) {
+  localStorage.setItem(SESSION_KEY, username);
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
+function signup(username, password) {
+  const users = loadUsers();
+  if (users.some((u) => u.username === username)) {
+    return { ok: false, message: "이미 존재하는 아이디입니다." };
+  }
+
+  users.push({ username, password });
+  saveUsers(users);
+  return { ok: true };
+}
+
+function login(username, password) {
+  const users = loadUsers();
+  const user = users.find((u) => u.username === username && u.password === password);
+  if (!user) {
+    return { ok: false, message: "아이디 또는 비밀번호가 올바르지 않습니다." };
+  }
+
+  saveSession(username);
+  return { ok: true };
+}
+
+function logout() {
+  clearSession();
+  currentUser = null;
+  todos = [];
+  editingId = null;
+  showAuthScreen();
+}
+
+function loadTodos() {
+  try {
+    const raw = localStorage.getItem(todoStorageKey(currentUser));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    console.error("Failed to load todos from localStorage:", err);
+    return [];
+  }
+}
+
+function saveTodos() {
+  try {
+    localStorage.setItem(todoStorageKey(currentUser), JSON.stringify(todos));
+  } catch (err) {
+    console.error("Failed to save todos to localStorage:", err);
+  }
+}
+
+function addTodo(text, category) {
   const trimmed = text.trim();
   if (!trimmed) return;
 
-  const { data, error } = await supabaseClient
-    .from(TABLE_NAME)
-    .insert({ text: trimmed, category })
-    .select()
-    .single();
+  todos.push({
+    id: String(Date.now()),
+    text: trimmed,
+    category,
+    completed: false,
+    createdAt: Date.now(),
+  });
 
-  if (error) {
-    console.error("Failed to add todo:", error);
-    return;
-  }
-
-  todos.push(data);
+  saveTodos();
   renderTodos();
 }
 
-async function deleteTodo(id) {
-  const { error } = await supabaseClient.from(TABLE_NAME).delete().eq("id", id);
-
-  if (error) {
-    console.error("Failed to delete todo:", error);
-    return;
-  }
-
+function deleteTodo(id) {
   todos = todos.filter((todo) => todo.id !== id);
+  saveTodos();
   renderTodos();
 }
 
-async function toggleTodo(id) {
+function toggleTodo(id) {
   const todo = todos.find((t) => t.id === id);
   if (!todo) return;
-
-  const nextCompleted = !todo.completed;
-  const { error } = await supabaseClient
-    .from(TABLE_NAME)
-    .update({ completed: nextCompleted })
-    .eq("id", id);
-
-  if (error) {
-    console.error("Failed to update todo:", error);
-    return;
-  }
-
-  todo.completed = nextCompleted;
+  todo.completed = !todo.completed;
+  saveTodos();
   renderTodos();
 }
 
@@ -85,27 +134,18 @@ function cancelEdit() {
   renderTodos();
 }
 
-async function saveEdit(id, text, category) {
+function saveEdit(id, text, category) {
   const trimmed = text.trim();
   if (!trimmed) return;
 
   const todo = todos.find((t) => t.id === id);
   if (!todo) return;
 
-  const { error } = await supabaseClient
-    .from(TABLE_NAME)
-    .update({ text: trimmed, category })
-    .eq("id", id);
-
-  if (error) {
-    console.error("Failed to save todo:", error);
-    return;
-  }
-
   todo.text = trimmed;
   todo.category = category;
 
   editingId = null;
+  saveTodos();
   renderTodos();
 }
 
@@ -252,9 +292,122 @@ function setFilter(filter) {
   renderTodos();
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-  todos = await loadTodos();
+function setAuthTab(tab) {
+  document.querySelectorAll(".auth-tab").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.authTab === tab);
+  });
+
+  document.getElementById("login-form").hidden = tab !== "login";
+  document.getElementById("signup-form").hidden = tab !== "signup";
+  hideAuthMessages();
+}
+
+function hideAuthMessages() {
+  document.getElementById("login-error").hidden = true;
+  document.getElementById("signup-error").hidden = true;
+  document.getElementById("signup-success").hidden = true;
+}
+
+function showAuthScreen() {
+  document.getElementById("auth-section").hidden = false;
+  document.getElementById("todo-app").hidden = true;
+  document.getElementById("user-bar").hidden = true;
+
+  document.getElementById("login-form").reset();
+  document.getElementById("signup-form").reset();
+  hideAuthMessages();
+  setAuthTab("login");
+}
+
+function showTodoScreen() {
+  document.getElementById("auth-section").hidden = true;
+  document.getElementById("todo-app").hidden = false;
+
+  const userBar = document.getElementById("user-bar");
+  userBar.hidden = false;
+  document.getElementById("current-user-label").textContent = `${currentUser}님`;
+
+  todos = loadTodos();
+  currentFilter = "전체";
+  editingId = null;
+  document.querySelectorAll(".filter-tab").forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.filter === "전체");
+  });
   renderTodos();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const session = loadSession();
+  if (session) {
+    currentUser = session;
+    showTodoScreen();
+  } else {
+    showAuthScreen();
+  }
+
+  document.querySelectorAll(".auth-tab").forEach((btn) => {
+    btn.addEventListener("click", () => setAuthTab(btn.dataset.authTab));
+  });
+
+  document.getElementById("login-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const username = document.getElementById("login-username").value.trim();
+    const password = document.getElementById("login-password").value;
+
+    const result = login(username, password);
+    const errorEl = document.getElementById("login-error");
+
+    if (!result.ok) {
+      errorEl.textContent = result.message;
+      errorEl.hidden = false;
+      return;
+    }
+
+    currentUser = username;
+    showTodoScreen();
+  });
+
+  document.getElementById("signup-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const username = document.getElementById("signup-username").value.trim();
+    const password = document.getElementById("signup-password").value;
+    const passwordConfirm = document.getElementById("signup-password-confirm").value;
+
+    const errorEl = document.getElementById("signup-error");
+    const successEl = document.getElementById("signup-success");
+    errorEl.hidden = true;
+    successEl.hidden = true;
+
+    if (!username || !password) {
+      errorEl.textContent = "아이디와 비밀번호를 입력해주세요.";
+      errorEl.hidden = false;
+      return;
+    }
+
+    if (password !== passwordConfirm) {
+      errorEl.textContent = "비밀번호가 일치하지 않습니다.";
+      errorEl.hidden = false;
+      return;
+    }
+
+    const result = signup(username, password);
+    if (!result.ok) {
+      errorEl.textContent = result.message;
+      errorEl.hidden = false;
+      return;
+    }
+
+    document.getElementById("signup-form").reset();
+    successEl.textContent = "회원가입이 완료되었습니다. 로그인해주세요.";
+    successEl.hidden = false;
+    setTimeout(() => {
+      setAuthTab("login");
+      document.getElementById("login-username").value = username;
+      document.getElementById("login-password").focus();
+    }, 800);
+  });
+
+  document.getElementById("logout-btn").addEventListener("click", () => logout());
 
   const input = document.getElementById("todo-input");
   const categorySelect = document.getElementById("category-select");

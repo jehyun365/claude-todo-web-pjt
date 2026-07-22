@@ -21,12 +21,133 @@ body {
 .app-header {
   text-align: center;
   margin-bottom: 24px;
+  position: relative;
 }
 
 .app-title {
   font-size: 28px;
   font-weight: 700;
   color: #333;
+}
+
+.user-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.logout-btn {
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  background-color: #eee;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.logout-btn:hover {
+  background-color: #ddd;
+}
+
+.logout-btn:active {
+  transform: scale(0.96);
+}
+
+/* Auth */
+.auth-section {
+  max-width: 360px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.auth-tab {
+  flex: 1 1 0;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.auth-tab:hover {
+  background-color: #e6e6e6;
+}
+
+.auth-tab.active {
+  background-color: #4a90e2;
+  color: #fff;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-input {
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+
+.auth-input:focus {
+  border-color: #4a90e2;
+}
+
+.auth-submit-btn {
+  padding: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #4a90e2;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.auth-submit-btn:hover {
+  background-color: #3a7bc8;
+}
+
+.auth-submit-btn:active {
+  background-color: #2f66a8;
+  transform: scale(0.98);
+}
+
+.auth-message {
+  font-size: 13px;
+  margin-top: -2px;
+}
+
+.auth-error {
+  color: #e74c3c;
+}
+
+.auth-success {
+  color: #2ecc71;
 }
 
 /* Progress */
