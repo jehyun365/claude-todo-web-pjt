@@ -40,6 +40,10 @@ body {
   color: #666;
 }
 
+.user-bar[hidden] {
+  display: none;
+}
+
 .logout-btn {
   padding: 4px 12px;
   font-size: 13px;
@@ -102,6 +106,17 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.auth-form[hidden] {
+  display: none;
+}
+
+.auth-form-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 4px;
 }
 
 .auth-input {
